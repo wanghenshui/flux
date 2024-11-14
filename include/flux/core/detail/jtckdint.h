@@ -15,6 +15,15 @@
  * PERFORMANCE OF THIS SOFTWARE.
  */
 
+/*
+ * Upstream repo: https://github.com/jart/jtckdint
+ *
+ * This file contains the following changes from upstream v0.2:
+ *  - All functions are constexpr
+ *  - #include <stdbool.h> before <stdckdint.h> to define the _Bool type for GCC in C++ mode
+ *  - Use GNU builtins even if __STRICT_ANSI__ is defined
+ */
+
 /**
  * @fileoverview C23 Checked Arithmetic
  *
@@ -64,6 +73,7 @@
 #endif
 
 #if __ckd_has_include(<stdckdint.h>)
+#include <stdbool.h>
 #include <stdckdint.h>
 #else
 
@@ -90,11 +100,10 @@ typedef unsigned __ckd_intmax __ckd_uintmax_t;
 #define __ckd_has_builtin(x) 0
 #endif
 
-#if (!defined(__STRICT_ANSI__) &&                                       \
-     ((defined(__GNUC__) && __GNUC__ >= 5 && !defined(__ICC)) ||        \
+#if ((defined(__GNUC__) && __GNUC__ >= 5 && !defined(__ICC)) ||        \
       (__ckd_has_builtin(__builtin_add_overflow) &&                     \
        __ckd_has_builtin(__builtin_sub_overflow) &&                     \
-       __ckd_has_builtin(__builtin_mul_overflow))))
+       __ckd_has_builtin(__builtin_mul_overflow)))
 #define ckd_add(res, x, y) __builtin_add_overflow((x), (y), (res))
 #define ckd_sub(res, x, y) __builtin_sub_overflow((x), (y), (res))
 #define ckd_mul(res, x, y) __builtin_mul_overflow((x), (y), (res))
@@ -108,7 +117,7 @@ typedef unsigned __ckd_intmax __ckd_uintmax_t;
 #include <limits>
 
 template <typename __T, typename __U, typename __V>
-inline bool ckd_add(__T *__res, __U __a, __V __b) {
+inline constexpr bool ckd_add(__T *__res, __U __a, __V __b) {
   static_assert(std::is_integral<__T>::value &&
                 std::is_integral<__U>::value &&
                 std::is_integral<__V>::value,
@@ -176,7 +185,7 @@ inline bool ckd_add(__T *__res, __U __a, __V __b) {
 }
 
 template <typename __T, typename __U, typename __V>
-inline bool ckd_sub(__T *__res, __U __a, __V __b) {
+inline constexpr bool ckd_sub(__T *__res, __U __a, __V __b) {
   static_assert(std::is_integral<__T>::value &&
                 std::is_integral<__U>::value &&
                 std::is_integral<__V>::value,
@@ -242,7 +251,7 @@ inline bool ckd_sub(__T *__res, __U __a, __V __b) {
 }
 
 template <typename __T, typename __U, typename __V>
-inline bool ckd_mul(__T *__res, __U __a, __V __b) {
+inline constexpr bool ckd_mul(__T *__res, __U __a, __V __b) {
   static_assert(std::is_integral<__T>::value &&
                 std::is_integral<__U>::value &&
                 std::is_integral<__V>::value,
